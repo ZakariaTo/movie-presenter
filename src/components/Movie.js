@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import Axios from "axios-observable";
 import { API_KEY } from "../constants/constants";
 import LoadingDotsIcon from "./LoadingDotsIcon";
+import NotFound from "./NotFound";
 
 import "../styles/movie.css";
 
 function Movie(props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [isFound, setIsFound] = useState(true);
   const [movie, setMovie] = useState();
 
   useEffect(() => {
@@ -15,7 +17,10 @@ function Movie(props) {
       try {
         const response = await Axios.get(`movie/${props.idMovie}?api_key=${API_KEY}&language=fr`);
         response.subscribe(movie => {
-          setMovie(movie.data);
+          if (movie.data)
+            setMovie(movie.data);
+          else
+            setIsFound(false);
           setIsLoading(false);
         })
       } catch (error) {
@@ -36,6 +41,7 @@ function Movie(props) {
 
   if (isLoading) return <LoadingDotsIcon />;
   if (isError) return <p>Veuillez réessayer</p>;
+  if (!isFound) return <NotFound />;
   return (
     <div className="card">
       <div className="img1" style={{ backgroundImage: `url(https://image.tmdb.org/t/p/w500/${movie.poster_path})` }}></div>
